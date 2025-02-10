@@ -8,19 +8,18 @@ function Login() {
     const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const [hasNavigated, setHasNavigated] = React.useState(false);
 
     React.useEffect(() => {
-        // Check both authentication and user role
-        if (isAuthenticated && user?.role) {
+        if (isAuthenticated && user?.role && !hasNavigated) {
+            setHasNavigated(true);
             navigate(`/${user.role}`, { replace: true });
         }
-    }, [isAuthenticated, user, navigate]);
+    }, [isAuthenticated, user, navigate, hasNavigated]);
 
     const handleGoogleLogin = () => {
         window.location.href = `${process.env.REACT_APP_API_URL}auth/google`;
     };
-
-    // Remove handleLoginSuccess as it's not being used
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">

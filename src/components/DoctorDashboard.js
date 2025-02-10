@@ -80,7 +80,7 @@ function DoctorDashboard() {
             const token = localStorage.getItem('token');
             
             // Fetch stats
-           const statsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/doctor/stats`, {
+           const statsResponse = await fetch(`${process.env.REACT_APP_API_URL}api/doctor/stats`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
