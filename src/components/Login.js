@@ -1,29 +1,26 @@
+// src/components/Login.js
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Menu, X, Stethoscope, Activity, Users, Calendar, Shield } from 'lucide-react';
 
 function Login() {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     React.useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/');
+        // Check both authentication and user role
+        if (isAuthenticated && user?.role) {
+            navigate(`/${user.role}`, { replace: true });
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, user, navigate]);
 
     const handleGoogleLogin = () => {
-        window.location.href = 'http://localhost:5001/auth/google';
+        window.location.href = `${process.env.REACT_APP_API_URL}auth/google`;
     };
 
-    const handleLoginSuccess = async (token) => {
-        const result = await login(token);
-        if (result.success) {
-            navigate(result.redirectTo);
-        }
-    };
+    // Remove handleLoginSuccess as it's not being used
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -32,7 +29,7 @@ function Login() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-20">
                         <div className="flex items-center space-x-4">
-                            {/* Stethoscope Logo */}
+                            {/* Logo Section */}
                             <div className="relative">
                                 <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full blur opacity-30"></div>
                                 <div className="relative bg-white rounded-full p-2">
@@ -53,18 +50,18 @@ function Login() {
                         
                         {/* Desktop Navigation */}
                         <div className="hidden md:flex items-center space-x-8">
-                            <a href="/about" className="group flex items-center space-x-2 text-gray-600 hover:text-indigo-600 transition-colors">
+                            <button className="group flex items-center space-x-2 text-gray-600 hover:text-indigo-600 transition-colors">
                                 <Users className="h-5 w-5 group-hover:scale-110 transition-transform" />
                                 <span>About Us</span>
-                            </a>
-                            <a href="/services" className="group flex items-center space-x-2 text-gray-600 hover:text-indigo-600 transition-colors">
+                            </button>
+                            <button className="group flex items-center space-x-2 text-gray-600 hover:text-indigo-600 transition-colors">
                                 <Activity className="h-5 w-5 group-hover:scale-110 transition-transform" />
                                 <span>Services</span>
-                            </a>
-                            <a href="/appointments" className="group flex items-center space-x-2 text-gray-600 hover:text-indigo-600 transition-colors">
+                            </button>
+                            <button className="group flex items-center space-x-2 text-gray-600 hover:text-indigo-600 transition-colors">
                                 <Calendar className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                                <span>Appointments</span>
-                            </a>
+                                <span>Contact</span>
+                            </button>
                         </div>
 
                         {/* Mobile menu button */}
@@ -87,18 +84,18 @@ function Login() {
                 {isMenuOpen && (
                     <div className="md:hidden bg-white/95 backdrop-blur-md">
                         <div className="px-2 pt-2 pb-3 space-y-1">
-                            <a href="/about" className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-indigo-50">
+                            <button className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 w-full text-left">
                                 <Users className="h-5 w-5" />
                                 <span>About Us</span>
-                            </a>
-                            <a href="/services" className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-indigo-50">
+                            </button>
+                            <button className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 w-full text-left">
                                 <Activity className="h-5 w-5" />
                                 <span>Services</span>
-                            </a>
-                            <a href="/appointments" className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-indigo-50">
+                            </button>
+                            <button className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 w-full text-left">
                                 <Calendar className="h-5 w-5" />
-                                <span>Appointments</span>
-                            </a>
+                                <span>Contact</span>
+                            </button>
                         </div>
                     </div>
                 )}
@@ -108,7 +105,6 @@ function Login() {
             <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] px-4 py-12">
                 <div className="max-w-md w-full">
                     <div className="relative">
-                        {/* Decorative Elements */}
                         <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-20"></div>
                         
                         <div className="relative bg-white shadow-xl rounded-2xl p-8">
@@ -175,19 +171,19 @@ function Login() {
                             <div className="mt-8 text-sm text-center space-y-4">
                                 <p className="text-gray-600">
                                     By continuing, you agree to our{' '}
-                                    <a href="/terms" className="text-indigo-600 hover:text-indigo-500">
+                                    <button className="text-indigo-600 hover:text-indigo-500">
                                         Terms
-                                    </a>{' '}
+                                    </button>{' '}
                                     and{' '}
-                                    <a href="/privacy" className="text-indigo-600 hover:text-indigo-500">
+                                    <button className="text-indigo-600 hover:text-indigo-500">
                                         Privacy Policy
-                                    </a>
+                                    </button>
                                 </p>
                                 <p className="text-gray-500">
                                     Need assistance?{' '}
-                                    <a href="/support" className="text-indigo-600 hover:text-indigo-500">
+                                    <button className="text-indigo-600 hover:text-indigo-500">
                                         Contact Support
-                                    </a>
+                                    </button>
                                 </p>
                             </div>
                         </div>

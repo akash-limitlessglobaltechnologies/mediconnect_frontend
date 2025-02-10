@@ -69,7 +69,7 @@ const handleSubmit = async (e) => {
 
     try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5001/api/patient/register', {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}api/patient/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

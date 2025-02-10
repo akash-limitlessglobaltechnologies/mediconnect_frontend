@@ -2,75 +2,27 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+
+// Import Guards
+import { 
+    PrivateRoute, 
+    RoleGuard, 
+    DoctorDashboardGuard, 
+    PatientDashboardGuard 
+} from './components/guards/RouteGuards';
+
+// Component Imports
 import Login from './components/Login';
 import GoogleCallback from './components/GoogleCallback';
 import RoleSelection from './components/RoleSelection';
 import PatientRegistration from './components/PatientRegistration';
 import DoctorRegistration from './components/doctor/DoctorRegistration';
 import DoctorDashboard from './components/DoctorDashboard';
+import DoctorProfile from './components/doctor/DoctorProfile';
 import PatientDashboard from './components/PatientDashboard';
-import { useAuth } from './context/AuthContext';
-
-// Protected Route Component
-const PrivateRoute = ({ children }) => {
-    const { user, loading } = useAuth();
-    
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-            </div>
-        );
-    }
-
-    if (!user) {
-        return <Navigate to="/login" />;
-    }
-
-    return children;
-};
-
-// Route Guard for Patient Dashboard
-const PatientDashboardGuard = ({ children }) => {
-    const { user } = useAuth();
-    const [hasProfile, setHasProfile] = React.useState(null);
-    const [loading, setLoading] = React.useState(true);
-
-    React.useEffect(() => {
-        const checkProfile = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:5001/api/patient/profile', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const data = await response.json();
-                setHasProfile(data.success);
-            } catch (error) {
-                setHasProfile(false);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        checkProfile();
-    }, []);
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-            </div>
-        );
-    }
-
-    if (!hasProfile) {
-        return <Navigate to="/patient/register" />;
-    }
-
-    return children;
-};
+import PatientProfile from './components/patient/PatientProfile';
+import DoctorSearch from './components/patient/DoctorSearch';
+import DoctorDetails from './components/patient/DoctorDetails';
 
 function App() {
     return (
@@ -96,36 +48,85 @@ function App() {
                         path="/patient/register" 
                         element={
                             <PrivateRoute>
-                                <PatientRegistration />
+                                <RoleGuard allowedRole="patient">
+                                    <PatientRegistration />
+                                </RoleGuard>
                             </PrivateRoute>
                         } 
                     />
-                    // In App.js, add the route
-<Route 
-    path="/doctor/register" 
-    element={
-        <PrivateRoute>
-            <DoctorRegistration />
-        </PrivateRoute>
-    } 
-/>
                     <Route 
                         path="/patient" 
                         element={
                             <PrivateRoute>
-                                <PatientDashboardGuard>
-                                    <PatientDashboard />
-                                </PatientDashboardGuard>
+                                <RoleGuard allowedRole="patient">
+                                    <PatientDashboardGuard>
+                                        <PatientDashboard />
+                                    </PatientDashboardGuard>
+                                </RoleGuard>
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/patient/profile" 
+                        element={
+                            <PrivateRoute>
+                                <RoleGuard allowedRole="patient">
+                                    <PatientProfile />
+                                </RoleGuard>
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/patient/search-doctors" 
+                        element={
+                            <PrivateRoute>
+                                <RoleGuard allowedRole="patient">
+                                    <DoctorSearch />
+                                </RoleGuard>
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/patient/doctor/:doctorId" 
+                        element={
+                            <PrivateRoute>
+                                <RoleGuard allowedRole="patient">
+                                    <DoctorDetails />
+                                </RoleGuard>
                             </PrivateRoute>
                         } 
                     />
 
                     {/* Doctor Routes */}
                     <Route 
-                        path="/doctor" 
+                        path="/doctor/register" 
                         element={
                             <PrivateRoute>
-                                <DoctorDashboard />
+                                <RoleGuard allowedRole="doctor">
+                                    <DoctorRegistration />
+                                </RoleGuard>
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/doctor/*" 
+                        element={
+                            <PrivateRoute>
+                                <RoleGuard allowedRole="doctor">
+                                    <DoctorDashboardGuard>
+                                        <DoctorDashboard />
+                                    </DoctorDashboardGuard>
+                                </RoleGuard>
+                            </PrivateRoute>
+                        } 
+                    />
+                    <Route 
+                        path="/doctor/profile" 
+                        element={
+                            <PrivateRoute>
+                                <RoleGuard allowedRole="doctor">
+                                    <DoctorProfile />
+                                </RoleGuard>
                             </PrivateRoute>
                         } 
                     />

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const PrivateRoute = ({ children }) => {
+const PrivateRoute = ({ children, allowedRole }) => {
     const { user, loading, isAuthenticated } = useAuth();
+    const location = useLocation();
 
     if (loading) {
         return (
@@ -13,12 +14,19 @@ const PrivateRoute = ({ children }) => {
         );
     }
 
+    // Create a single source of truth for redirect logic
     if (!isAuthenticated) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    if (!user.role) {
-        return <Navigate to="/role-selection" />;
+    // Only redirect to role selection if authenticated but no role
+    if (!user?.role && location.pathname !== '/role-selection') {
+        return <Navigate to="/role-selection" state={{ from: location }} replace />;
+    }
+
+    // Check for specific role access if provided
+    if (allowedRole && user.role !== allowedRole) {
+        return <Navigate to={`/${user.role}`} replace />;
     }
 
     return children;
