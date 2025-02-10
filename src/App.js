@@ -1,4 +1,3 @@
-// App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -23,6 +22,7 @@ import PatientDashboard from './components/PatientDashboard';
 import PatientProfile from './components/patient/PatientProfile';
 import DoctorSearch from './components/patient/DoctorSearch';
 import DoctorDetails from './components/patient/DoctorDetails';
+import AppointmentBooking from './components/patient/AppointmentBooking'; // Add this import
 
 function App() {
     return (
@@ -92,6 +92,17 @@ function App() {
                             <PrivateRoute>
                                 <RoleGuard allowedRole="patient">
                                     <DoctorDetails />
+                                </RoleGuard>
+                            </PrivateRoute>
+                        } 
+                    />
+                    {/* Add Appointment Booking Route */}
+                    <Route 
+                        path="/patient/book-appointment/:doctorId" 
+                        element={
+                            <PrivateRoute>
+                                <RoleGuard allowedRole="patient">
+                                    <AppointmentBooking />
                                 </RoleGuard>
                             </PrivateRoute>
                         } 

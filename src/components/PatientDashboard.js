@@ -23,30 +23,50 @@ const PatientDashboard = () => {
 
     const fetchDashboardData = async () => {
         try {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+    
             const [profileRes, appointmentsRes] = await Promise.all([
-                fetch('/api/patients/profile'),
-                fetch('/api/doctors/patient/appointments?limit=5')
+                fetch(`${process.env.REACT_APP_API_URL}api/patient/profile`, {
+                    headers
+                }),
+                fetch(`${process.env.REACT_APP_API_URL}api/doctor/patient/appointments?limit=5`, {
+                    headers
+                })
             ]);
-
+    
+            if (!profileRes.ok || !appointmentsRes.ok) {
+                throw new Error('Failed to fetch dashboard data');
+            }
+    
             const [profileData, appointmentsData] = await Promise.all([
                 profileRes.json(),
                 appointmentsRes.json()
             ]);
-
+    
+            console.log('Profile Data:', profileData); // Debug log
+            console.log('Appointments Data:', appointmentsData); // Debug log
+    
             if (profileData.success && appointmentsData.success) {
                 setDashboardData({
                     profile: profileData.data,
-                    appointments: appointmentsData.data.appointments,
-                    recentAppointments: appointmentsData.data.appointments.slice(0, 3),
+                    appointments: appointmentsData.data.appointments || [],
+                    recentAppointments: (appointmentsData.data.appointments || []).slice(0, 3),
                     loading: false,
                     error: null
                 });
+            } else {
+                throw new Error(profileData.message || appointmentsData.message || 'Failed to load data');
             }
         } catch (error) {
+            console.error('Dashboard error:', error);
             setDashboardData(prev => ({
                 ...prev,
                 loading: false,
-                error: 'Failed to load dashboard data'
+                error: error.message || 'Failed to load dashboard data'
             }));
         }
     };
